@@ -57,18 +57,19 @@ describe Google::Maps do
 
       location = Google::Maps.geocode('Science Park 400, Amsterdam').first
       components = location.components
-      expect(components['administrative_area_level_1']).to eq(['Noord-Holland'])
+      expect(components['administrative_area_level_1']).to eq(['Noord-Holland', 'NH'])
       expect(components['administrative_area_level_2']).to eq(['Government of Amsterdam'])
-      expect(components['country']).to eq(['The Netherlands'])
+      expect(components['country']).to eq(['The Netherlands', 'NL'])
       expect(components['establishment']).to eq(['University of Amsterdam'])
       expect(components['locality']).to eq(['Amsterdam'])
       expect(components['political']).to eq(
-        ['Middenmeer', 'Watergraafsmeer', 'Amsterdam', 'Government of Amsterdam', 'Noord-Holland', 'The Netherlands']
+        ['Middenmeer', 'Watergraafsmeer', 'Amsterdam', 'Government of Amsterdam', 'Noord-Holland', 'NH', 'The Netherlands', 'NL'],
       )
       expect(components['postal_code']).to eq(['1098 XH'])
       expect(components['route']).to eq(['Science Park Amsterdam'])
       expect(components['street_number']).to eq(['400'])
       expect(components['sublocality']).to eq(%w[Middenmeer Watergraafsmeer])
+      expect(location.place_id).to eq('ChIJIcrTFogJxkcRb0dbtBG4pQc')
     end
 
     it 'should handle multiple location for an address' do
@@ -80,6 +81,7 @@ describe Google::Maps do
       expect(location.address).to eq('Amsterdam, NY, USA')
       expect(location.latitude).to eq(42.93868560)
       expect(location.longitude).to eq(-74.18818580)
+      expect(location.place_id).to eq('ChIJVXealLU_xkcRja_At0z9AGY')
     end
 
     it 'should accept languages other than en' do
@@ -87,6 +89,14 @@ describe Google::Maps do
 
       location = Google::Maps.geocode('Science Park 400, Amsterdam', :nl).first
       expect(location.address).to eq('Science Park 400, Amsterdam, 1098 XH Amsterdam, Nederland')
+    end
+
+    it 'should return place_id' do
+      stub_response('geocoder/science-park-400-amsterdam-nl.json')
+
+      location = Google::Maps.geocode('Science Park 400, Amsterdam', :nl).first
+      puts location.inspect
+      expect(location.place_id).to eq('ChIJIcrTFogJxkcRb0dbtBG4pQc')
     end
 
     it 'should return an empty array when an address could not be geocoded' do
